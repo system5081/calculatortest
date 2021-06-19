@@ -47,6 +47,7 @@ let state = "leftside";
 //  3)「＋　÷　－　×　＝」を押した直後（calBtn)
 //  4)<右端>(rightside)
 //  5)「＝」を教えて計算が終わった直後（finish）
+//  6)定数(変数)を入力した後(content)
 //  変数stateに、leftside,calculation, calBtn, finishを代入して状態を管理します。
 //-------------------------------------------------------------------------
 //@があるかどうか
@@ -80,6 +81,11 @@ function changeOutput(){
     changeOutput()//計算結果・計算過程画面の入れ替える
 }
 //----------------------------------------------------------------------------
+//桁数を揃える関数10桁を表示させる関数
+function digitNum(num) {
+  return Math.round(num*100000000)/100000000;
+}
+//----------------------------------------------------------------------------
 //自作関数計算式を与えて@の前を返す。端の場合は"leftside","rightside"
 function beforewordstate(total){
   var index=total.indexOf("@");
@@ -94,11 +100,33 @@ function beforewordstate(total){
     return total[index-1];
   }
 }
+//-----------------------------------------------------------------------------
+//自作関数@の直後を返す
+function afterwordstate(total){
+  var before=beforewordstate(total);
+  if(before==="rightside"){
+    return "rightside";
+  }
+  else {
+    var index=total.indexOf("@");
+    var char=total[index+1];
+    return char;
+  }
+}
 //------------------------------------------------------------------------------
-//自作関数計算式を与えてstateを返す。"calBtn","calculation"
-function beforecharstate(char){
+//自作関数文字を与えてstateを返す。"calBtn","calculation"
+function charstate(char){
     if (char==="+"||char==="-"||char==="*"||char==="/"){
       return "calBtn";
+    }
+    else if(char==="x"||char==="π"||char==="e"||char==="g"){
+      return "content"
+    }
+    else if(char==="rightside"){
+      return "rightside";
+    }
+    else if(char==="leftside"){
+      return "leftside";
     }
     else{
       return "calculation";
@@ -167,6 +195,9 @@ document.getElementById("moveleft").addEventListener("click",function(){
 const one_nine = document.querySelectorAll(".one_nine");
 one_nine.forEach(index => {    
   index.addEventListener("click", ()=> {
+    if(state==="content"){
+      return;
+    }
     if(state === "leftside") {
       total = index.dataset.indexId;         
     }
@@ -195,8 +226,9 @@ one_nine.forEach(index => {
 //---------------------------------------------------------------------------
 // 0の数字ボタンを押した時
 document.getElementById("zero").addEventListener("click",function(){
+  
   if(moveinput==="@"){
-    if(beforecharstate(beforewordstate(total))==="calBtn"){
+    if(charstate(beforewordstate(total))==="calBtn"){
       console.log("前の文字はゼロ");
       return;
     }
@@ -228,7 +260,7 @@ document.getElementById("zero").addEventListener("click",function(){
 // 00の数字ボタンを押した時
 document.getElementById("zerozero").addEventListener("click",function(){
   if(moveinput==="@"){
-    if(beforecharstate(beforewordstate(total))==="calBtn"){
+    if(charstate(beforewordstate(total))==="calBtn"){
       console.log("前の文字はゼロ");
       return;
     }
@@ -258,23 +290,19 @@ document.getElementById("zerozero").addEventListener("click",function(){
     }
   }
 })
-//-------------------------------------------------------------------------------
-//変数xのボタンを押した時
-
 //--------------------------------------------------------------------------------
 //演算子のボタンを押した時
 document.querySelectorAll(".cal").forEach(index => {     
 index.addEventListener('click', () => {
   if(moveinput==="@"){
-    if(beforecharstate(beforewordstate(total))==="calBtn"){
+    if(charstate(beforewordstate(total))==="calBtn"){
       return;
     }
-    else if(beforecharstate(beforewordstate(total)==="calculation")){
+    else if(charstate(beforewordstate(total)==="calculation")){
       var indexs=total.indexOf("@");
-      var lastword7=total.slice(indexs+1);
+      var lastword=total.slice(indexs+1);
       total=total.slice(0,indexs);
       total+=index.dataset.indexId;
-      console.log(total);
       total+="@";
       total+=lastword; 
       indexs=0;
@@ -284,7 +312,7 @@ index.addEventListener('click', () => {
   else if(moveinput===0){
     if(state === 'leftside') {
       return;//最初記号は押せない
-    }else if(state === 'calculation'){
+    }else if(state === 'calculation'||state==="content"){
       total += index.dataset.indexId;//計算中はtotalに打った記号を追加し、totalに代入する。
     }else if(state === 'finish'){
       //計算後は前の計算結果をtotal に代入して計算しなおす。
@@ -306,11 +334,119 @@ index.addEventListener('click', () => {
 })//forEach
 //--------------------------------------------------------------------------------
 //BSのボタンを押した時
-
+document.getElementById('bs').addEventListener("click", function(){
+//moveinput="@"の時
+  if(moveinput==="@"){
+    var indexs=total.indexOf("@");
+    var lastword=output_sub.textContent.slice(indexs+1);
+    total=output_sub.textContent.slice(0,indexs-1);
+    total+="@";
+    total+=lastword;
+    output_sub.textContent=total;
+    indexs=0;
+    lastword=0;
+}  
+  else if(moveinput===0) {
+    var leng=output_sub.textContent.length;
+    var total=output_sub.textContent.slice(0,leng-1);
+    output_sub.textContent=total;
+    leng=0;
+  }
+})
 //---------------------------------------------------------------------------------
 //Cのボタンを押した時
-
+document.getElementById("clear").addEventListener("click", function(){
+  reset();
+})
 //-----------------------------------------------------------------------------------
 //=のボタンを押した時
-
+document.getElementById('equal_btn').addEventListener("click",function(){
+  if(moveinput==="@"){
+    var indexes=total.indexOf("@");
+    var lastword=output_sub.textContent.slice(indexes+1);
+    total=output_sub.textContent.slice(0,indexes);
+    total+=lastword;
+    indexes=0;
+    lastword=0;
+  }
+  console.log(eval(total));
+  output_total.textContent = digitNum(eval(total));//桁数を揃える関数10桁を表示させる関数digitNum
+  state = 'finish'//計算が終わった状態にする。
+  mode ='integer_mode'//整数モードに戻す
+  changeOutput()//計算結果・計算過程画面の入れ替える
+});
 //----------------------------------------------------------------------------------
+//小数点
+document.getElementById("point").addEventListener("click",function(){
+  if(mode==="decimal_mode"||state==="content"){
+    return;
+  }
+  if(state==='leftside'||state==='finish') {
+    total = 0;//(1)最初と計算終了直後なら、0を入力
+  }else if(state==='calBtn'){
+    //これを入れないと、0.4+0.4と打つと0.4+00.4となる。
+    if(output_sub.textContent.slice(-1)!=='0'){
+      total += 0;//(1')演算記号入力直後なら、今までの計算結果に0を入力
+    }   
+  }
+  total += point.dataset.indexId;//(2)「.」を入力
+  
+  output_sub.textContent = total;
+  state = 'calculation'//数字を入力している状態にする。
+  mode = 'decimal_mode'; //小数入力モードに変更
+  changeOutput()//計算結果・計算過程画面の入れ替える
+  })
+//-----------------------------------------------------------------------------------
+//()について
+//----------------------------------------------------------------------------------
+//定数
+/*
+document.getElementById("pi").addEventListener("click",function(){
+  if(state==="calBtn"&&moveinput===0){
+    total+="π";
+    output_sub.textContent=total;
+    state="content";
+  }
+  else if(moveinput==="@"){
+    console.log("注)先に演算子前に演算子が必要です。後に演算子がある場合一度消してから打ち直してください")
+    var beforestate=charstate(beforewordstate(output_sub.textContent));
+    var afterstate=charstate(afterwordstate(output_sub.textContent));
+    if(beforestate==="calBtn"&&afterstate==="calBtn"){
+      var indexs=total.indexOf("@");
+      var lastword=total.slice(indexs+1);
+      total=total.slice(0,indexs);
+      total+="π";
+      console.log(total);
+      total+="@";
+      total+=lastword; 
+      //演算子が入力されるまで待機させたい
+      console.log("+*-/のいずれかを入力してください。")
+    }
+  }
+})
+document.getElementById("napier").addEventListener("click",function(){
+  if(state==="calBtn"&&moveinput===0){
+    console.log("test");
+    total+="e";
+    output_sub.textContent=total;
+    state="content";
+  }
+})
+document.getElementById("gravity").addEventListener("click",function(){
+  if(state==="calBtn"&&moveinput===0){
+    total+="g";
+    output_sub.textContent=total;
+    state="content";
+  }
+})
+//-------------------------------------------------------------------------------
+//変数xのボタンを押した時
+document.getElementById("variable").addEventListener("click",function(){
+  if(state==="calBtn"&&moveinput===0){
+    total+="x";
+    output_sub.textContent=total;
+    state="content";
+  }
+})
+*/
+//--------------------------------------------------------------------------------
