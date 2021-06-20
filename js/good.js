@@ -76,7 +76,8 @@ function changeOutput(){
     total = 0; 
     output_sub.textContent = 0;
     output_total.textContent = 0;
-    mode ='integer_mode'//整数モードに戻す
+    moveinput="0";
+    mode ='integer_mode';//整数モードに戻す
     state ='leftside';
     changeOutput()//計算結果・計算過程画面の入れ替える
 }
@@ -88,7 +89,7 @@ function digitNum(num) {
 //----------------------------------------------------------------------------
 //自作関数計算式を与えて@の前を返す。端の場合は"leftside","rightside"
 function beforewordstate(total){
-  var index=total.indexOf("@");
+  var index=output_sub.textContent.indexOf("@");
   var totallength=total.length;
   if(index===0){
     return "leftside";
@@ -108,7 +109,7 @@ function afterwordstate(total){
     return "rightside";
   }
   else {
-    var index=total.indexOf("@");
+    var index=output_sub.indexOf("@");
     var char=total[index+1];
     return char;
   }
@@ -147,7 +148,7 @@ document.getElementById("moveleft").addEventListener("click",function(){
         moveinput="@";
     }
     else if(state!=="leftside"&&moveinput==="@"){
-        var position=total.indexOf("@");
+        var position=output_sub.textContent.indexOf("@");
         var lastword=output_sub.textContent.slice(position+1);
         var beforone=output_sub.textContent[position-1];
         total=output_sub.textContent.slice(0,position-1);
@@ -173,7 +174,7 @@ document.getElementById("moveleft").addEventListener("click",function(){
       state="rightside";
     }
     if(state!=="rightside"&&moveinput==="@"){
-        var potison=total.indexOf("@");
+        var potison=output_sub.textContent.indexOf("@");
         var lastword=output_sub.textContent.slice(potison+2);
         total=output_sub.textContent.slice(0,potison);
         total+=output_sub.textContent[potison+1];
@@ -207,7 +208,7 @@ one_nine.forEach(index => {
       total = index.dataset.indexId;  
     }
     else if(moveinput==="@"){//@入力
-      var position=total.indexOf("@");
+      var position=output_sub.textContent.indexOf("@");
       var lastword=total.slice(position+1);
       total=total.slice(0,position);
       total+=index.dataset.indexId;
@@ -233,7 +234,7 @@ document.getElementById("zero").addEventListener("click",function(){
       return;
     }
     else {
-      var indexs=total.indexOf("@");
+      var indexs=output_sub.textContent.indexOf("@");
       var lastword=total.slice(indexs+1);
       total=output_sub.textContent.slice(0,indexs);
       total+=0;
@@ -265,7 +266,7 @@ document.getElementById("zerozero").addEventListener("click",function(){
       return;
     }
     else {
-      var indexs=total.indexOf("@");
+      var indexs=output_sub.textContent.indexOf("@");
       var lastword=total.slice(indexs+1);
       total=output_sub.textContent.slice(0,indexs);
       total+=0;
@@ -299,7 +300,7 @@ index.addEventListener('click', () => {
       return;
     }
     else if(charstate(beforewordstate(total)==="calculation")){
-      var indexs=total.indexOf("@");
+      var indexs=output_sub.textContent.indexOf("@");
       var lastword=total.slice(indexs+1);
       total=total.slice(0,indexs);
       total+=index.dataset.indexId;
@@ -337,7 +338,8 @@ index.addEventListener('click', () => {
 document.getElementById('bs').addEventListener("click", function(){
 //moveinput="@"の時
   if(moveinput==="@"){
-    var indexs=total.indexOf("@");
+    console.log("test");
+    var indexs=output_sub.textContent.indexOf("@");
     var lastword=output_sub.textContent.slice(indexs+1);
     total=output_sub.textContent.slice(0,indexs-1);
     total+="@";
@@ -362,7 +364,7 @@ document.getElementById("clear").addEventListener("click", function(){
 //=のボタンを押した時
 document.getElementById('equal_btn').addEventListener("click",function(){
   if(moveinput==="@"){
-    var indexes=total.indexOf("@");
+    var indexes=output_sub.indexOf("@");
     var lastword=output_sub.textContent.slice(indexes+1);
     total=output_sub.textContent.slice(0,indexes);
     total+=lastword;
@@ -412,7 +414,7 @@ document.getElementById("pi").addEventListener("click",function(){
     var beforestate=charstate(beforewordstate(output_sub.textContent));
     var afterstate=charstate(afterwordstate(output_sub.textContent));
     if(beforestate==="calBtn"&&afterstate==="calBtn"){
-      var indexs=total.indexOf("@");
+      var indexs=output_sub.textContent.indexOf("@");
       var lastword=total.slice(indexs+1);
       total=total.slice(0,indexs);
       total+="π";
