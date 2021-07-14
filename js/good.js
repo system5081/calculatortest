@@ -359,6 +359,7 @@ document.getElementById('bs').addEventListener("click", function(){
 //Cのボタンを押した時
 document.getElementById("clear").addEventListener("click", function(){
   reset();
+  moveinput=0;
 })
 //-----------------------------------------------------------------------------------
 //=のボタンを押した時
@@ -451,4 +452,25 @@ document.getElementById("variable").addEventListener("click",function(){
   }
 })
 */
+//-------------------------------------------------------------------------------
+document.getElementById("test").onclick=function(){
+  console.log(total);
+};
 //--------------------------------------------------------------------------------
+//total変数をbladeファイルに渡す
+const data = 'Hello World！'; // 渡したいデータ
+ 
+$.ajax({
+    type: "POST", //　GETでも可
+    url: "request.php", //　送り先
+    data: { 'データ': data }, //　渡したいデータをオブジェクトで渡す
+    dataType : "json", //　データ形式を指定
+    scriptCharset: 'utf-8' //　文字コードを指定
+})
+.then(
+    function(param){　 //　paramに処理後のデータが入って戻ってくる
+        console.log(param); //　帰ってきたら実行する処理
+    },
+    function(XMLHttpRequest, textStatus, errorThrown){ //　エラーが起きた時はこちらが実行される
+        console.log(XMLHttpRequest); //　エラー内容表示
+});

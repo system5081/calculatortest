@@ -70,3 +70,6 @@
       border: 2px solid #006DD9;/* ボックスの境界線を実線で指定する */
       border-radius: 5px; /* 角丸を指定する */
     }
+    #test{
+      display:none;
+    }
